@@ -13,6 +13,7 @@
 import urllib2, sys
 from bs4 import BeautifulSoup
 
+# Check if there are missed calls
 req = "http://192.168.1.254/cgi/b/_stats_/stats/?be=0&l0=3&l1=5"
 try:
     response = urllib2.urlopen(req)
@@ -59,7 +60,7 @@ else:
     #print len(numberList)
     #print len(timeList)
 
-    # Print out the results
+    # Print oput the results
     x=0
     for i in numberList:
       datetime = timeList[x].split('T')
