@@ -65,11 +65,10 @@ else:
       datetime = timeList[x].split('T')
       date = datetime[0]
       time = datetime[1]
-      print i + " called @ " + time +", " + date
-      
-      
-      
-      x=+1
+      #print i + " called @ " + time +", " + date
+      #Clean output
+      print i + ":" + date + ":" + time
+      x+=1
     
 sys.exit()
 
