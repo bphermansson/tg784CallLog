@@ -27,19 +27,41 @@ else:
     html = response.read()
     #print html
     soup = BeautifulSoup(html)
+    
+    # Find number of missed calls
     table = soup.find("table", "edittable")  
+    #print table
+    # The rightmost column contains the total of calls and is the only one using 'colspan="3"'
+    elems = soup.select('td[colspan="3"]')
+    # The number of missed calls are on line 1 (note, we start at line 0)
+    print "Missed calls: " + elems[1].string
+    
+    # Find incoming calls/numbers
+    # This is done by finding the buttons where the numbers are presented. 
+    # Aint no good as this also fetches outgoing calls. 
     secondtable = soup.findAll('table', "edittable")[1]
-    btns = soup.findAll('input', {'type': 'button'})
+    #btns = soup.findAll('input', {'type': 'button'})
+    #btns=soup.findAll('img')
+    # Incoming call indicated by image "/images/inco__md.gif" 
+    
+    btns = soup.findAll('img', {'src': ['/images/inco__md.gif']})
+
+    #c=0
+    numberList=[]
+    #for x in btns:
+    #  imgName = soup.findAll('img')[c].get('src')
+    #  if imgName == "/images/outg__md.gif":
+    #	numberlist[c]=  
+    #	c+=1
     numbers = len(btns)
-    #print "There are " + str(numbers) + " numbers."
+    print "There are " + str(numbers) + " numbers."
     
     # Every number is listed twice, just show one of them by looping with two steps
-    numberList=[]
-    for i in xrange(0,numbers,2):
+    for i in xrange(0,numbers,1):
       elems = soup.select('input[type="button"]')[i]
       #print elems.get('value')
       numberList.append(elems.get('value'))
-    #print "There are " + str(i) + " numbers."
+    print "'i' is " + str(i)
         
     # Find times
     timeList=[]
@@ -56,19 +78,25 @@ else:
       timeList.append(elems[i].getText())
     #print elems.get('text')
     
-    print len(numberList)
-    print len(timeList)
+    #print len(numberList)
+    #print len(timeList)
 
     # Print out the results
-    x=0
-    for i in numberList:
-      datetime = timeList[x].split('T')
-      date = datetime[0]
-      time = datetime[1]
-      #print i + " called @ " + time +", " + date
-      #Clean output
-      print str(x)+"-"+i + ":" + date + ":" + time
-      x+=1
-    
+    numbersCount=len(timeList)
+    #print "Numbers=" + str(numbersCount)
+    if (numbersCount!=0):
+      x=0
+      for i in numberList:
+	datetime = timeList[x].split('T')
+	date = datetime[0]
+	time = datetime[1]
+	#print i + " called @ " + time +", " + date
+	#Clean output
+	print i + ":" + date + ":" + time
+	x+=1
+    else:
+      print ("No numbers in call log")
+
+
 sys.exit()
 
