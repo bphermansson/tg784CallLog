@@ -30,17 +30,15 @@ def lookup(number):
       print 'We failed to reach a server.'
       print 'Reason: ', e.reason
     else:
-      #print "Checking number"
-      html = response.read()
-      #print html
+      html = response.read() 
       soup = BeautifulSoup(html)
       span = soup.findAll('span', {'class':'hit-name-ellipsis'})
       name = span[0].text
       fullname = name.strip()
-      fullname = fullname.encode(sys.stdout.encoding, 'replace')
-      #print "Full name: " + fullname
-      return fullname
-       
+      #fullnameenc = fullname.encode(sys.stdout.encoding, 'replace')
+      fullnameenc = fullname.encode('utf8', 'replace')
+      #print "Full name: " + fullnameenc
+      return fullnameenc
   else:
     print "No number to look up"
   
@@ -55,79 +53,47 @@ def main():
       print 'We failed to reach a server.'
       print 'Reason: ', e.reason
   else:
-      #print "Ok, got data from router"
       html = response.read()
-      #print html
       soup = BeautifulSoup(html)
-      
-      # Find number of missed calls
-      table = soup.find("table", "edittable")  
-      #print table
-      # The rightmost column contains the total of calls and is the only one using 'colspan="3"'
-      elems = soup.select('td[colspan="3"]')
-      # The number of missed calls are on line 1 (note, we start at line 0)
-      #print "Missed calls: " + elems[1].string
-      
-      # Find incoming calls/numbers
-      # This is done by finding the buttons where the numbers are presented. 
-      # Aint no good as this also fetches outgoing calls. 
-      secondtable = soup.findAll('table', "edittable")[1]
-      
-      # Incoming call indicated by image "/images/inco__md.gif, miss__md.gif" 
-      btns = soup.findAll('img', {'src': ['/images/inco__md.gif', '/images/miss__md.gif', '/images/outg__md.gif']})
-      #print btns
-      #print btns['src']
-      numberList=[]
-      timeList=[]
-      numbers = len(btns)
-      #print "There are " + str(numbers) + " numbers."
+      table = soup.find('form', {'name': 'voip_call_log'})
+      for row in table.findAll("tr"):
+	for img in row.select('img'):
+	  imgsrc = img.get('src')
+	  # Type of called are identified by different images
+	  # Here we look for incoming answered and missed calls
+	  if (imgsrc=="/images/inco__md.gif" or imgsrc=="/images/miss__md.gif"):
+	    # Find numbers
+	    for btn in row.select('input[type="button"]'):
+	      number=btn.get('value')	# Get value from buttons == phone number
+	    # Find timestamp. Finds  all td:s in current row. 
+	    # Then td[0] (first td in row) is the timestamp
+	    td = row.findAll("td")
+	    """
+	    Calls are listed twice, both for phone line 1 and phone line 2
+	    Just list the calls on line 1. It is identified by "Telefon 1" in the
+	    7:th td.
+	    """
+	    phoneline = td[6].get_text()
+	    if (phoneline == "Telefon 1"):
+	      # Get timestamp and decode it
+	      ts = td[0].get_text().encode('utf8', 'replace')
+	      # Split date and time
+	      datetime = ts.split("T")
+	      date = datetime[0]
+	      #print date
+	      time = datetime[1]
+	      #print time
+	      #print val
+	      if (imgsrc=="/images/inco__md.gif"):
+		status = "Besvarat"
+	      else:
+		status = "Missat"
+	      # Check owner of number
+	      name = lookup(number)
 
-      # Find values in column Port
-      phonetds = soup.select('td[colspan="3"]')
-      
-      # Find timestamps
-      timestamps = soup.findAll('td', {'width': '14%'})
-      #print timestamps
-      
-      for i in xrange(0,numbers,1):
-	elems = soup.select('input[type="button"]')[i]
-	#print elems
-	#print i
-	val=elems.get('value')	# Get value from buttons
-	btnsrc = btns[i]['src'] # Get src from image row
-	if (btnsrc == "/images/inco__md.gif" or btnsrc == "/images/miss__md.gif"):
-	  # Port tds start at td number 4
-	  phone1 = phonetds[i+4].getText()
-	  if (phone1 == "Telefon 1"):
-	    #print phone1
-	    #print "Elems:" + str(i) + "-" + val + "-" + btnsrc
-	    timestamp = timestamps[i+1].getText()
-	    timeList.append(timestamp)
-	    numberList.append(val)
-
-      #print "There are " + str(len(numberList)) + " valid numbers"
-      
-      # Print out the results
-      numbersCount=len(timeList)
-      #print "Numbers=" + str(numbersCount)
-      if (numbersCount!=0):
-	x=0
-	for i in numberList:
-	  datetime = timeList[x].split('T')
-	  date = datetime[0]
-	  time = datetime[1]
-	  # Check who owns the number
-	  fullname = lookup(i)
-	  alldata = fullname + "/" + i + "/" + date.encode() + "/" + time.encode()
-	  print alldata
-#	  print i + "(" + fullname + ")" + " called @ " + time +", " + date
-	  #print date + ":" + time + "-" + i + "-" + lookup(i)
-	  x+=1
-      else:
-	print ("No numbers in call log")
-	lookup("null")
-
-
+	      print date + " @ " + time + " _ " + name + "(" + number + ")" + " (" + status + ")"
+	      
+	
   sys.exit()
 
 if __name__ == "__main__":
