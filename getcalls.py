@@ -85,7 +85,7 @@ def main():
 	      # Check owner of number
 	      name = lookup(number)
 
-	      print date + " @ " + time + " _ " + name + "(" + number + ")" + " (" + status + ")|"
+	      print date + " @ " + time + " _ " + name + "(" + number + ")" + " (" + status + "),"
 	      
 	
   sys.exit()
