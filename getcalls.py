@@ -13,6 +13,7 @@
 #
 import urllib2, sys
 from bs4 import BeautifulSoup
+from urllib2 import HTTPError
 
 def lookup(number):
   if (number!="null"):
@@ -20,7 +21,7 @@ def lookup(number):
     try:
       response = urllib2.urlopen(req)
     except HTTPError as e:
-      print 'The server couldn\'t fulfill the request.'
+      print 'The Eniro server couldn\'t fulfill the request.'
       print 'Error code: ', e.code
     except URLError as e:
       print 'We failed to reach a server.'
@@ -42,6 +43,7 @@ def main():
       response = urllib2.urlopen(req)
   except HTTPError as e:
       print 'The server couldn\'t fulfill the request.'
+      print 'Url:' + req
       print 'Error code: ', e.code
   except URLError as e:
       print 'We failed to reach a server.'
@@ -84,7 +86,8 @@ def main():
 		status = "Missat"
 	      # Check owner of number
 	      name = lookup(number)
-
+	      if not name:
+		name = "Okänt nummer"
 	      print date + " @ " + time + " _ " + name + "(" + number + ")" + " (" + status + "),"
 	      
 	
