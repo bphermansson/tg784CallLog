@@ -88,6 +88,7 @@ def main():
 		status = "Besvarat"
 	      else:
 		status = "Missat"
+	      # Check owner of number
 	      name = lookup(number)
 
 	      print date + " @ " + time + " _ " + name + "(" + number + ")" + " (" + status + ")"
