@@ -16,7 +16,6 @@ from bs4 import BeautifulSoup
 
 def lookup(number):
   if (number!="null"):
-    req = "http://www.hitta.se/s%C3%B6k?vad="+number
     req="http://personer.eniro.se/resultat/"+number
     try:
       response = urllib2.urlopen(req)
