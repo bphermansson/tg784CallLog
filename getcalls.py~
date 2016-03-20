@@ -11,16 +11,13 @@
 
 # About BeautifulSoup: https://automatetheboringstuff.com/chapter11/
 #
-
 import urllib2, sys
 from bs4 import BeautifulSoup
 
 def lookup(number):
-  #print number
   if (number!="null"):
     req = "http://www.hitta.se/s%C3%B6k?vad="+number
     req="http://personer.eniro.se/resultat/"+number
-    #print req
     try:
       response = urllib2.urlopen(req)
     except HTTPError as e:
@@ -35,9 +32,7 @@ def lookup(number):
       span = soup.findAll('span', {'class':'hit-name-ellipsis'})
       name = span[0].text
       fullname = name.strip()
-      #fullnameenc = fullname.encode(sys.stdout.encoding, 'replace')
       fullnameenc = fullname.encode('utf8', 'replace')
-      #print "Full name: " + fullnameenc
       return fullnameenc
   else:
     print "No number to look up"
